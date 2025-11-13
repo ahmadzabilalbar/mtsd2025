@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MTSD - Kalendar 2025</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </head>
+  <!-- siri bercakap dengan ai | ahmadzabilalbar at gmail dot com -->
+  <body class="mb-5 fs-6">
+    <div class="container-fluid mt-1">
+      <h1 class="fs-5 text-center mb-2"><small>MTSD - Kalendar 2025</small></h1>
+
+      <div class="row gx-1 mb-2" id="calendar" aria-live="polite"></div>
+    </div>
+    <div style="height: 50px"></div>
+    <script>
+      const eventDates = {
+        holiday: {
+          "2025-01-27": "Israk Mikraj",
+          "2025-01-29": "CNY",
+          "2025-01-30": "CNY 2",
+          "2025-02-11": "Thaipusam",
+          "2025-03-02": "Ramadan",
+          "2025-03-31": "Aidil Fitri",
+          "2025-04-01": "Aidil Fitri 2",
+          "2025-05-01": "Pekerja",
+          "2025-05-12": "Wesak",
+          "2025-06-02": "Agong",
+          "2025-06-07": "Aidil Adha",
+          "2025-06-08": "Aidil Adha 2",
+          "2025-06-22": "Sultan",
+          "2025-06-27": "Muharam",
+          "2025-06-29": "Muharam 2",
+          "2025-08-31": "Merdeka",
+          "2025-09-05": "Maulid",
+          "2025-09-07": "Maulid 2",
+          "2025-09-16": "Malaysia",
+          "2025-10-20": "Deepavali",
+          "2025-12-25": "Krismas",
+        },
+        outing: {
+          "2025-03-15": "Outing",
+          "2025-04-19": "Outing",
+          "2025-05-17": "Outing",
+          "2025-06-28": "Outing",
+          "2025-07-19": "Outing",
+          "2025-08-23": "Outing",
+          "2025-10-04": "Outing",
+          "2025-11-08": "Outing",
+          "2025-12-06": "Outing",
+        },
+        sleepoverRanges: [
+          ["2025-02-28", "2025-03-02"],
+          ["2025-03-14", "2025-03-15"],
+          ["2025-03-28", "2025-04-05"],
+          ["2025-05-01", "2025-05-03"],
+          ["2025-05-29", "2025-06-09"],
+          ["2025-07-04", "2025-07-05"],
+          ["2025-08-08", "2025-08-09"],
+          ["2025-09-12", "2025-09-20"],
+          ["2025-10-17", "2025-10-21"],
+          ["2025-11-21", "2025-11-22"],
+          ["2025-12-19", "2025-12-31"],
+        ],
+        examRanges: [
+          ["2025-05-04", "2025-05-15", "UPP 1"],
+          ["2025-08-24", "2025-09-11", "UPP 2"],
+          ["2025-11-30", "2025-12-11", "UASA"],
+        ],
+      };
+
+      function generateCalendar() {
+        const calendarContainer = document.getElementById("calendar");
+        for (let month = 0; month < 12; month++) {
+          const monthDiv = document.createElement("div");
+          monthDiv.className = "col-4 col-sm-4 col-md-4 col-lg-1";
+          const monthName = new Date(2025, month).toLocaleString("default", {
+            month: "long",
+          });
+          monthDiv.innerHTML = `<h6 class="text-center mb-2 fw-bold"><small>${monthName}</small></h6><div class="d-flex flex-column gap-1 mb-2">`;
+
+          const daysInMonth = new Date(2025, month + 1, 0).getDate();
+          const sleepoverDates = new Set();
+          eventDates.sleepoverRanges.forEach((range) => {
+            const start = new Date(range[0]);
+            const end = new Date(range[1]);
+            for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
+              sleepoverDates.add(d.toISOString().split("T")[0]);
+            }
+          });
+
+          for (let day = 1; day <= daysInMonth; day++) {
+            const dateString = `2025-${String(month + 1).padStart(
+              2,
+              "0"
+            )}-${String(day).padStart(2, "0")}`;
+            const isHoliday = eventDates.holiday[dateString];
+            const isSleepover = sleepoverDates.has(dateString);
+            const isOuting = eventDates.outing[dateString];
+
+            let button = document.createElement("button");
+            button.innerHTML = `<small>${new Date(
+              2025,
+              month,
+              day
+            ).toLocaleString("default", { weekday: "short" })} ${day}</small>`;
+            button.className =
+              "btn btn-outline-secondary btn-sm text-start disabled";
+            button.disabled = true;
+            button.className += " small";
+            button.style.opacity = "1"; // Set opacity to 100%
+            const today = new Date();
+            const currentDate = new Date(2025, month, day);
+            button.className =
+              "btn btn-outline-secondary btn-sm text-start disabled";
+            button.disabled = true;
+            button.className += " text-muted small";
+            button.style.opacity = "1"; // Set opacity to 100%
+            if (currentDate < today.setHours(0, 0, 0, 0)) {
+              button.className =
+                "btn btn-sm btn-outline-secondary text-start text-muted disabled";
+              button.disabled = true;
+              button.style.opacity = "0.25";
+              if (isHoliday) {
+                button.innerHTML += ` - <small>${eventDates.holiday[dateString]}</small>`;
+              } else if (isSleepover) {
+                button.innerHTML += ` - <small>Balik</small>`;
+              } else if (isOuting) {
+                button.innerHTML += ` - <small>${eventDates.outing[dateString]}</small>`;
+              } else if (
+                eventDates.examRanges.some(([start, end, description]) => {
+                  const isExamDay =
+                    currentDate >= new Date(start + "T00:00:00") &&
+                    currentDate <= new Date(end + "T23:59:59");
+                  if (isExamDay) {
+                    button.innerHTML += ` - <small>${description}</small>`;
+                  }
+                  return isExamDay;
+                })
+              ) {
+                button.innerHTML += " - <small>Exam</small>";
+              }
+            } else if (isHoliday) {
+              button.className = "btn btn-sm btn-info text-start";
+              button.innerHTML += ` - <small>${eventDates.holiday[dateString]}</small>`;
+            } else if (isSleepover) {
+              button.className = "btn btn-sm btn-success text-start";
+              button.innerHTML += ` - <small>Balik</small>`;
+            } else if (isOuting) {
+              button.className = "btn btn-sm btn-primary text-start";
+              button.innerHTML += ` - <small>${eventDates.outing[dateString]}</small>`;
+            } else if (
+              currentDate.getDay() === 5 ||
+              currentDate.getDay() === 6
+            ) {
+              button.className = "btn btn-sm btn-outline-secondary text-start";
+              button.style.color = "red";
+            } else if (
+              eventDates.examRanges.some(([start, end, description]) => {
+                const isExamDay =
+                  currentDate >= new Date(start + "T00:00:00") &&
+                  currentDate <= new Date(end + "T23:59:59");
+                const isFridayOrSaturday =
+                  currentDate.getDay() === 5 || currentDate.getDay() === 6;
+                if (isExamDay && !isFridayOrSaturday) {
+                  button.className = "btn btn-sm btn-warning text-start";
+                  button.innerHTML += ` - <small>${description}</small>`;
+                }
+                return isExamDay && !isFridayOrSaturday;
+              })
+            ) {
+              button.className = "btn btn-sm btn-warning text-start";
+            }
+            button.classList.add("no-hover"); // Ensure all buttons have no-hover class, including those with events
+            monthDiv.querySelector(".d-flex").appendChild(button);
+          }
+          monthDiv.innerHTML += `</div>`;
+          calendarContainer.appendChild(monthDiv);
+        }
+      }
+      generateCalendar();
+    </script>
+  </body>
+</html>
